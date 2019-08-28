@@ -5,7 +5,12 @@ const initState = {
   err: null,
   isSearching: false,
   showSoldiers: [],
-  sorted: false,
+  deleteErr: false,
+  hasMore: true,
+  index: 0,
+  order: 0,
+  sortKey: "",
+  sorted:false,
 };
 
 const soldiers = (state = initState, action) => {
@@ -57,55 +62,66 @@ const soldiers = (state = initState, action) => {
       };
     case 'CREATE_SOLDIER_SUCCESS':
       const newSoldiers = [...state.soldiers, action.newSoldier];
+      console.log('action newSoldier', action.newSoldier);
       return {
         ...state,
         soldiers: newSoldiers,
         isLoading: false,
-        err: ''
+        err: null
       }
-      // const totalPages = Math.ceil(state.count / state.pageSize);
-      // let newPage = totalPages;
-      // if(state.pageOfUsers.length === state.pageSize) {
-      //   newPage += 1;
-      // }
-      //   return {
-      //     ...state,
-      //     isLoading: false,
-      //     pageOfUsers:[
-      //       ...state.pageOfUsers,
-      //       action.user,
-      //     ],
-      //     curPage : newPage,
-      //   };
     
-    //Edit User 
-    // case 'EDIT_SOLDIER_START':
-    //   return {
-    //     ...state,
-    //     isLoading: true
-    //   };
-    // case 'EDIT_SOLDIER_ERROR':
-    //   return {
-    //     ...state,
-    //     isLoading: false,
-    //     err: action.error
-    //   };
-    // case 'EDIT_SOLDIER_SUCCESS':
-    //   let editedSoldiers = state.soldiers.map(soldier => {
-    //     if (soldier._id === action.id) {
-    //       return action.soldier;
-    //     } else {
-    //       return soldier;
-    //     }
-    //   });
-    //   return {
-    //     ...state,
-    //     isLoading: false,
-    //     soldiers: editedSoldiers,
-    //     err: null,
-    //     showSoldiers: show
-    //   };
+    //Edit Soldier 
+    case 'EDIT_SOLDIER_START':
+      return {
+        ...state,
+        isLoading: true
+      };
+    case 'EDIT_SOLDIER_ERROR':
+      return {
+        ...state,
+        isLoading: false,
+        err: action.err
+      };
+    case 'EDIT_SOLDIER_SUCCESS':
+      let editedSoldiers = state.soldiers.map(soldier => {
+        if (soldier._id === action._id) {
+          return action.soldier;
+        } else {
+          return soldier;
+        }
+      });
+      return {
+        ...state,
+        isLoading: false,
+        soldiers: editedSoldiers,
+        err: null,
+        // showSoldiers: show
+      };
     
+    case 'SORT_SOLDIERS': {
+      const soldiers = [...state.soldiers];
+      const key = action.keep === true ? state.sortKey : action.key;
+      const keep = action.keep;
+      var sorted = false;
+      var newOrder = state.order === 1 ? -1 : 1;
+      if(keep === true){ newOrder = state.order; sorted = false;}
+      soldiers.sort((soldier1, soldier2) => {
+        if (soldier1[key] === soldier2[key]) {
+          return 0;
+        }
+        if(newOrder === 1)
+        return soldier1[key] < soldier2[key] ? -1 : 1;
+        else return soldier1[key] > soldier2[key] ? -1 : 1;
+      });
+      return {
+        ...state,
+        soldiers,
+        order : newOrder,
+        sortKey : key,
+        sorted:sorted,
+      };
+    }
+
     // Sort Users
     // case 'SORT_USERS': {
     //   const sortedUsers = [...state.pageOfUsers]; 
@@ -124,6 +140,9 @@ const soldiers = (state = initState, action) => {
     //     pageOfUsers: sortedUsers,
     //   };
     // }
+
+
+  
 
 
     // Fetch Soldiers
@@ -150,6 +169,31 @@ const soldiers = (state = initState, action) => {
         isFetching: false,
         err: action.error
       };
+
+
+    case 'ADD_RANGE_SOLDIERS_START':
+      return {
+        ...state,
+        isLoading: true
+      };
+    case 'ADD_RANGE_SOLDIERS_SUCCESS': {
+      const newSoldiers = [...state.soldiers, ...action.soldiers];
+      return {
+        ...state,
+        isLoading: false,
+        err: null,
+        soldiers: newSoldiers,
+        hasMore: action.hasMore
+      };
+    }
+    case 'ADD_RANGE_SOLDIERS_FAIL': 
+      return {
+        ...state,
+        isLoadng: false,
+        err: action.err,
+      }
+
+
     default:
       return state;
   }
@@ -159,46 +203,7 @@ export default soldiers;
 
 
 
- // Get UserList 
-// case 'GET_USERS_START':
-//   return {
-//     ...state,
-//     isLoading: true,
-//     err: null
-//   };
-// case 'GET_USERS_FAIL':
-//   return {
-//     ...state,
-//     isLoading: false,
-//     err: action.error
-//   };
-// case 'GET_USERS_SUCCESS':
-//   return {
-//     ...state,
-//     isLoading: false,
-//     err: null,
-//     users: action.data
-//   };
 
- // Count Page
-//  case 'GET_COUNT_START':
-//   return {
-//     ...state,
-//     isLoading: true
-//   };
-// case 'GET_COUNT_SUCCESS':
-// return {
-//   ...state,
-//   count: action.count,
-//   isLoading: false,
-//   err: null
-// };
-// case 'GET_COUNT_FAIL':
-// return {
-//   ...state,
-//   isLoading: false,
-//   err: action.error
-// }
 
   // Search User
 // case 'SEARCH_START' : {

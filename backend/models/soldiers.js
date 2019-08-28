@@ -4,7 +4,7 @@ var mongoose     = require('mongoose');
 var Schema       = mongoose.Schema;
 
 var soldierSchema   = new Schema({
-  imgURL: String,
+  imgUrl: String,
   name: String,
   sex: String,
 	rank: String,

@@ -1,4 +1,181 @@
 import axios from 'axios';
+// Fetch Page
+const fetchSoldiersStart = () => {
+  return {
+    type: 'FETCH_SOLDIERS_START'
+  };
+};
+
+const fetchSoldiersSuccess = (soldiers) => {
+  return {
+    type: 'FETCH_SOLDIERS_SUCCESS',
+    soldiers
+  };
+};
+
+const fetchSoldiersFail = err => {
+  return {
+    type: 'FETCH_SOLDIERS_FAIL',
+    err
+  };
+};
+
+export const fetchSoldiers = () => {
+  return (dispatch) => {
+    dispatch(fetchSoldiersStart());
+    axios
+      .get('http://localhost:5000/api/range/0/10')
+      .then(response => {
+        // console.log('!!!soldiers',response.data.soldiers);
+        dispatch(fetchSoldiersSuccess(response.data.soldiers));
+      })
+      .catch(err => {
+        dispatch(fetchSoldiersFail(err));
+      });
+  }
+}
+
+// add range
+const addRangeSoldiersStart = () => {
+  return {
+    type: 'ADD_RANGE_SOLDIERS_START'
+  };
+};
+
+const addRangeSoldiersSuccess = (soldiers, hasMore) => {
+  return {
+    type: 'ADD_RANGE_SOLDIERS_SUCCESS',
+    soldiers,
+    hasMore
+  };
+};
+
+const addRangeSoldiersFail = err => {
+  return {
+    type: 'ADD_RANGE_SOLDIERS_FAIL',
+    err
+  };
+};
+
+export const addRangeSoldiers = (offset, limit) => {
+  return dispatch => {
+    dispatch(addRangeSoldiersStart());
+    axios({
+      method: 'get',
+      url: `http://localhost:5000/api/range/${offset}/${limit}`
+    })
+      .then(response => {
+        const soldiers = response.data.soldiers;
+        const hasMore = soldiers.length >= limit;
+        // console.log('add range soldiers', soldiers);
+        // console.log('add range hasmore', hasMore);
+        dispatch(addRangeSoldiersSuccess(soldiers, hasMore));
+      })
+      .catch(err => {
+        dispatch(addRangeSoldiersFail(err));
+      });
+  };
+};
+
+// load
+export const reload = () => {
+  return (dispatch) => {
+    dispatch(fetchSoldiersStart());
+    axios({
+      method: 'get',
+      url: 'http://localhost:5000/api/'
+    })
+      .then(response => {
+        dispatch(fetchSoldiersSuccess(response.data.soldiers));
+      })
+      // .then(res => {
+      //   dispatch(sortEmployees("", true));
+      // })
+      .catch(err => {
+        dispatch(fetchSoldiersFail(err));
+      });
+  }
+};
+
+
+
+// Fetch Sub Page
+const fetchDirectSubsStart = () => {
+  return {
+    type: 'FETCH_DIRECT_SUBS_START'
+  };
+};
+
+const fetchDirectSubsSuccess = directSubs => {
+  return {
+    type: 'FETCH_DIRECT_SUBS_SUCCESS',
+    directSubs
+  };
+};
+
+const fetchDirectSubsFail = err => {
+  return {
+    type: 'FETCH_DIRECT_SUBS_FAIL',
+    err
+  };
+};
+
+export const fetchDirectSubs = _id => {
+  return (dispatch) => {
+    dispatch(fetchDirectSubsStart());
+    axios({
+      method: 'get',
+      url: `http://localhost:5000/api/${_id}/directSubs`
+    })
+      .then(response => {
+        dispatch(fetchDirectSubsSuccess(response.data.directSubs));
+      })
+      .catch(err => {
+        dispatch(fetchDirectSubsFail(err));
+      });
+  };
+};
+
+
+// Fetch Sup Page
+const fetchSupStart = () => {
+  return {
+    type: 'FETCH_SUP_START'
+  };
+};
+
+const fetchSupSuccess = soldier => {
+  return {
+    type: 'FETCH_SUP_SUCCESS',
+    soldier
+  };
+};
+
+const fetchSupFail = err => {
+  return {
+    type: 'FETCH_SUP_FAIL',
+    err
+  };
+};
+
+export const fetchSup = _id => {
+  return (dispatch) => {
+    dispatch(fetchSupStart());
+    axios({
+      method: 'get',
+      url: `http://localhost:5000/api/${_id}`
+    })
+      .then(response => {
+        dispatch(fetchSupSuccess(response.data.soldier));
+        // console.log('fetch soldier response.data', response.data.soldier);
+      })
+      .catch(err => {
+        dispatch(fetchSupFail(err));
+      });
+  };
+};
+
+
 // Create User
 const createSoldierStart = () => {
   return {
@@ -29,8 +206,11 @@ export const createSoldier = (soldier) => {
       data: soldier
     })
       .then(response => {
-        console.log('response.data.soldier', response.data.soldier);
+        // console.log('response.data.soldier', response.data.soldier);
         dispatch(createSoldierSuccess(response.data.soldier));
+      })
+      .then(response => {
+        dispatch(reload());  
       })
       .catch(error => {
         dispatch(createSoldierFail(error));
@@ -52,23 +232,30 @@ const editSoldierFail = (error) => {
   };
 };
 
-const editSoldierSuccess = (id, user) => {
+const editSoldierSuccess = (id, soldier) => {
   return {
     type: 'EDIT_SOLDIER_SUCCESS',
     id,
-    user
+    soldier
   };
 };
 
 export const editSoldier = (id, soldier) => {
   return (dispatch) => {
     dispatch(editSoldierStart());
-    axios
-      .put(`http://localhost:5000/api/edit/${id}`, soldier)
+    // console.log('id', id);
+    axios({
+      method: 'put',
+      url: `http://localhost:5000/api/edit/${id}`,
+      data: soldier
+    })
       .then(response => {
-        dispatch(editSoldierSuccess(id, soldier));
-        //redirect home
+        dispatch(editSoldierSuccess(id, response.data.soldier));
+        dispatch(fetchSoldiers());
       })
+      // .then(response => {
+      //   dispatch(reload());  
+      // })
       .catch(error => {
         dispatch(editSoldierFail(error));
       });
@@ -99,13 +286,15 @@ const deleteSoldierSuccess = (id) => {
 export const deleteSoldier = (id) => {
   return (dispatch) => {
     dispatch(deleteSoldierStart());
-    console.log('delete id is ', id);
+    // console.log('delete id is ', id);
     axios
       .delete(`http://localhost:5000/api/delete/${id}`)
-      
       .then(response => {
         dispatch(deleteSoldierSuccess(id));
-        console.log('delete soldier success');
+        // console.log('delete soldier success');
+      })
+      .then(response => {
+        dispatch(reload());  
       })
       .catch(error => {
         dispatch(deleteSoldierFail(error));
@@ -113,54 +302,61 @@ export const deleteSoldier = (id) => {
   };
 };
 
-// Get Users
-// const getUsersStart = () => {
-//   return {
-//     type: 'GET_USERS_START'
-//   };
-// };
 
-// const getUsersFail = (error) => {
-//   return {
-//     type: 'GET_USERS_ERROR',
-//     error
-//   };
-// };
+// Upload Image
+const uploadImageStart = () => {
+  return {
+    type: 'UPLOAD_IMAGE_START'
+  };
+};
 
-// const getUsersSuccess = (response) => {
-//   return {
-//     type: 'GET_USERS_SUCCESS',
-//     data: response
-//   };
-// };
+const uploadImageSuccess = (image, filename, imgUrl) => {
+  return {
+    type: 'UPLOAD_IMAGE_SUCCESS',
+    image,
+    filename,
+    imgUrl
+  };
+};
 
-// export const getUsers = () => {
-//   return (dispatch) => {
-//     dispatch(getUsersStart());
-//     axios
-//       .get('http://localhost:8080/api/', getUsers)
-//       .then(response => {
-//         dispatch(getUsersSuccess(response.data.users));
-//       })
-//       .catch(error => {
-//         dispatch(getUsersFail(error));
-//       });
-//   };
-// };
+const uploadImageFail= err => {
+  return {
+    type: 'UPLOAD_IMAGE_FAIL',
+    err
+  };
+};
 
-// Redirect
-// export const redirect = () => {
-//   return {
-//     type: 'REDIRECT'
-//   };
-// };
+export const uploadImage = (image, filename) => {
+  let data = new FormData();
+  data.append('image', image);
+  data.append('filename', filename);
 
-// export const resetRedirect = () => {
-//   return {
-//     type: 'RESET_REDIRECT'
-//   };
-// };
+  console.log('data image', data.get('image'));
+  console.log('data filename', data.get('filename'));
 
+  return (dispatch) => {
+    dispatch(uploadImageStart());
+    axios({
+      method: 'post',
+      url: 'http://localhost:5000/api/image',
+      data: data
+    })
+      .then(response => {
+        dispatch(uploadImageSuccess(image, filename, response.data.imgUrl));
+        console.log('response:', response.data);
+      })
+      .catch(err => {
+        dispatch(uploadImageFail(err));
+      });
+  }
+};
+export const sortSoldiers = (key,keep) => {
+  return {
+    type: 'SORT_SOLDIERS',
+    key,
+    keep,
+  };
+};
 
 // Sort
 // export const sortUsers = key => {
@@ -214,84 +410,6 @@ export const deleteSoldier = (id) => {
 //   };
 // };
 
-// Fetch Page
-const fetchSoldiersStart = () => {
-  return {
-    type: 'FETCH_SOLDIERS_START'
-  };
-};
-
-const fetchSoldiersSuccess = (soldiers) => {
-  return {
-    type: 'FETCH_SOLDIERS_SUCCESS',
-    soldiers
-  };
-};
-
-const fetchSoldiersFail = err => {
-  return {
-    type: 'FETCH_SOLDIERS_FAIL',
-    err
-  };
-};
-
-export const fetchSoldiers = () => {
-  return (dispatch) => {
-    dispatch(fetchSoldiersStart());
-    axios
-      .get('http://localhost:5000/api/')
-      .then(response => {
-        console.log('action test',response.data.soldiers);
-        dispatch(fetchSoldiersSuccess(response.data.soldiers));
-      })
-      .catch(err => {
-        dispatch(fetchSoldiersFail(err));
-      });
-  }
-}
-
-// // Count Page
-// const getCountStart = () => {
-//   return {
-//     type: 'GET_COUNT_START'
-//   };
-// };
-
-// const getCountSuccess = count => {
-//   return {
-//     type: 'GET_COUNT_SUCCESS',
-//     count
-//   };
-// };
-
-// const getCountFail = err => {
-//   return {
-//     type: 'GET_COUNT_FAIL',
-//     err
-//   };
-// };
-
-// export const getCount = () => {
-//   return (dispatch) => {
-//     dispatch(getCountStart());
-//     axios
-//       .get('http://localhost:8080/api/count')
-//       .then(response => {
-//         const count = parseInt(response.data.count);
-//         dispatch(getCountSuccess(count));
-//       })
-//       .catch(err => {
-//         dispatch(getCountFail(err));
-//       });
-//   };
-// };
 
 
-// Set Status
-// export const setStatusCurPage = curPage => {
-//   return {
-//     type: 'SET_STATUS_CUR_PAGE',
-//     curPage
-//   };
-// };
 

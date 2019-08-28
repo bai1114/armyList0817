@@ -1,14 +1,17 @@
 import { combineReducers } from 'redux';
 import soldiers from './soldiers';
-// import redirect from './redirect';
+import directSubs from './directSubs';
 // import searchInput from './searchInput';
-// import status from './status';
+import image from './image';
+import directSup from './directSup';
+
 
 const reducers = combineReducers({
   soldiers,
-  // redirect,
+  image,
+  directSubs,
+  directSup,
   // searchInput,
-  // status,
 });
 
 export default reducers;
