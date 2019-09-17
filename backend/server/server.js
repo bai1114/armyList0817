@@ -282,14 +282,14 @@ router.post('/image', (req, res) => {
     console.log('server testing imageFile', imageFile);
     console.log('req.body.filename', req.body.filename);
     console.log('path!!!', path.join(__dirname, '..', 'public/images/', `${req.body.filename}`));
-    imageFile.mv(path.join(__dirname, '..', 'public/images/', `${req.body.filename}`), err => {
+    imageFile.mv(path.join(__dirname, '../..', 'public/images/', `${req.body.filename}`), err => {
     // imageFile.mv(path.join('/Users/Flora/myapp/backend/public/images/public/images/', `${req.body.filename}`), err => {
       if (err) {
         res.status(500).json({err});
         throw err;
       }
       // res.status(200).json({file: `pubic/images/${req.body.filename}`, imgUrl: `/static/images/${req.body.filename}`});
-      res.status(200).json({file: `pubic/images/${req.body.filename}`, imgUrl: path.join(__dirname, '..', 'public/images/', `${req.body.filename}`)});
+      res.status(200).json({file: `pubic/images/${req.body.filename}`, imgUrl: path.join('images', `${req.body.filename}`)});
     });
   });
 

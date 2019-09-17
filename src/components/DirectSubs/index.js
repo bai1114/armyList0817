@@ -36,8 +36,6 @@ class DirectSubs extends Component {
     if (directSubs.err !== null) {
       return <p>Some errs happened!</p>
     }
-    console.log('redirect',this.state.redirect);
-    console.log('loading',this.props.isLoading);
 
     if (this.state.redirect && !this.props.isLoading) {
       return <Redirect to = {{ pathname: '/' }}/>
@@ -84,12 +82,14 @@ class DirectSubs extends Component {
 
           <tbody>
               {directSubs.directSubs.map(sub => {
+                console.log('imgurl', sub.imgUrl);
                 return (
                   <tr key = {sub._id}> 
                     <td>
                       { sub.imgUrl ? (<img src={sub.imgUrl} alt ="" style={style}/>) : (
                         <img src={face} alt="default avatar" style={style} />
                       )}
+                        
                     </td>
                     <td class='text-center'>{sub.name}</td>
                     <td class='text-center'>{sub.sex}</td>

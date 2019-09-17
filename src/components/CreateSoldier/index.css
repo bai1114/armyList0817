@@ -1,0 +1,20 @@
+.create_soldier {
+  margin-left: 200px;
+  margin-top: 100px;
+}
+
+.image{
+	position: absolute;
+	width : 1000px;
+	height: 300px;
+	top: 200px;
+	left: 100px;
+}
+
+.text{
+	align-self: center;
+	top: 100px;
+	position:absolute;
+	left: 500px;
+	width: 1000px;
+}

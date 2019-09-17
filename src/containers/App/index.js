@@ -7,7 +7,7 @@ import EditSoldier from '../../components/EditSoldier';
 import DirectSubs from '../../components/DirectSubs';
 import DirectSuperior from '../../components/DirectSuperior';
 
-import { fetchSoldiers, deleteSoldier, editSoldier, createSoldier, uploadImage, fetchDirectSubs, fetchSup, addRangeSoldiers, sortSoldiers } from "../../redux/action-creators";
+import { fetchSoldiers, deleteSoldier, editSoldier, createSoldier, uploadImage, fetchDirectSubs, fetchSup, addRangeSoldiers, sortSoldiers, changeInput, clearInput, redirect, resetRedirect } from "../../redux/action-creators";
 
 class App extends Component { 
   render() {
@@ -29,6 +29,11 @@ class App extends Component {
               sortKey={this.props.sortKey}
               order={this.props.order}
               sorted={this.props.sorted}
+              searchInput={this.props.searchInput}
+              changeInput = {this.props.changeInput}
+              clearInput = {this.props.clearInput}
+              resetRedirect = {this.props.resetRedirect}
+              redirect = {this.props.redirect}
             />
           } />
           <Route 
@@ -42,6 +47,8 @@ class App extends Component {
                 soldiers = {this.props.soldiers}
                 uploadImage = {this.props.uploadImage}
                 image = {this.props.image}
+                redirect = {this.props.redirect}
+                redirectToHome = {this.props.redirectToHome}
               />
             } 
           /> 
@@ -57,6 +64,8 @@ class App extends Component {
                   isLoading = {this.props.isLoading}
                   uploadImage = {this.props.uploadImage}
                   image = {this.props.image}
+                  redirect = {this.props.redirect}
+                  redirectToHome = {this.props.redirectToHome}
                 /> 
               );
             }}
@@ -75,17 +84,10 @@ class App extends Component {
           <Route path="/:soldierId" render={({ match }) =>
             <DirectSuperior
               _id={match.params.soldierId}
-              // handleSort={this.handleSort}
               fetchSup={this.props.fetchSup}
-              // fetchDirectSubs={this.props.fetchDirectSubs}
-              // handleDelete={this.handleDelete}
-              // soldiers = {this.props.soldiers}
               err = {this.props.err}
-              // superior = {this.props.superior}
               directSup={this.props.directSup}
-              // fetchSoldiers = {this.props.fetchSoldiers}
               deleteSoldier = {this.props.deleteSoldier}
-              // isLoading = {this.props.isLoading}
               deleteErr={this.props.deleteErr}
             />
           } />
@@ -99,7 +101,6 @@ const mapStateToProps = (state) => {
   return {
     soldiers: state.soldiers.soldiers,
     err: state.soldiers.err,
-    // redirect: state.redirect,
     isLoading: state.soldiers.isLoading,
     image: state.image,
     directSubs: state.directSubs,
@@ -109,12 +110,9 @@ const mapStateToProps = (state) => {
     deleteErr: state.soldiers.deleteErr,
     sortKey: state.soldiers.sortKey,
     order: state.soldiers.order,
-    // sort: state.soldiers.sort,
-    sorted: state.soldiers.sorted
-    // isSearching: state.searchInput.isSearching,
-    // searchUsers: state.getUsers.searchUsers,
-    // searchInput: state.searchInput.searchInput,
-    // users: state.getUsers.users,
+    searchInput: state.searchInput.input,
+    sorted: state.soldiers.sorted,
+    redirect: state.redirect
   }
 };
 
@@ -123,9 +121,6 @@ const mapDispatchToProps = (dispatch) => {
     fetchSoldiers: () => {
       dispatch(fetchSoldiers());
     },
-    // getUsers: () => {
-    //   dispatch(getUsers());
-    // },
     deleteSoldier: (_id) => {
       dispatch(deleteSoldier(_id));
     },
@@ -147,20 +142,23 @@ const mapDispatchToProps = (dispatch) => {
     loadSoldiers: (offset, limit) => {
       setTimeout(() => {
         dispatch(addRangeSoldiers(offset, limit));
-      }, 2000);
+      }, 1500);
     },
     sortSoldiers: (key, keep) => {
       dispatch(sortSoldiers(key, keep));
     },
-    // sortUsers: (key) => {
-    //   dispatch(sortUsers(key));
-    // },
-    // search: (keyword) => {
-    //   dispatch(search(keyword));
-    // },
-    // changeSearchInput: (input) => {
-    //   dispatch(changeSearchInput(input));
-    // },
+    clearInput: () => {
+      dispatch(clearInput());
+    },
+    changeInput: (input) => {
+      dispatch(changeInput(input));
+    },
+    redirectToHome: () => {
+      dispatch(redirect());
+    },
+    resetRedirect: () => {
+      dispatch(resetRedirect());
+    },
   }
 };
 export default connect(mapStateToProps, mapDispatchToProps)(App);

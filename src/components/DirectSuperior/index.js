@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import face from '../../image/default.png';
 import { Redirect } from 'react-router-dom';
+import moment from 'moment';
 
 class DirectSuperior extends Component {
   constructor(props) {
@@ -25,17 +26,15 @@ class DirectSuperior extends Component {
       maxHeight: '50px',
       maxWidth: '50px'
     };  
-    // const handleSort = this.props.handleSort;
     const { directSup } = this.props;
     if (directSup.isLoading) {
       return <p>Loading...</p>
     }
     if (directSup.err !== null) {
-      return <p>Some errs happened!</p>
+      return <p>Some errors happened!</p>
     }
-    console.log('ds',directSup.superior);
     const sup = directSup.superior;
-
+    console.log('superiorname', sup.superiorName);
     if (this.state.redirect && !this.props.isLoading) {
       return <Redirect to = {{ pathname: '/' }}/>
     } else {
@@ -89,10 +88,11 @@ class DirectSuperior extends Component {
             <td class='text-center'>{sup.name}</td>
             <td class='text-center'>{sup.sex}</td>
             <td class='text-center'>{sup.rank}</td>
-            <td class='text-center'>{sup.startDate}</td>
+            <td class='text-center'>{moment.parseZone(sup.startDate).format('YYYY-MM-DD')}</td>
             <td class='text-center'><a href ={`tel:sup.phone`}>{sup.phone}</a></td>
             <td class='text-center'><a href ={`mailto:sup.email`}>{sup.email}</a></td>
-            <td class='text-center'>{sup.superiorName}</td>
+            {/* <td class='text-center'>{sup.superiorName}</td> */}
+            <td class='text-center'><Link to ={`/${sup.superiorId}`}>{sup.superiorName}</Link></td>
             <td class='text-center'>{sup.numberOfDirectSubs === 0 ? 0 : <Link to={`/${sup._id}/directSubs`}>{sup.numberOfDirectSubs}</Link>}</td>
             <td class='text-center'><Link className="btn btn-info" to={`/edit/${sup._id}`} >Edit</Link></td> 
             <td class='text-center'><button type = 'button' className="btn btn-danger" onClick={() => this.onDelete(sup._id)}>Delete</button></td>
@@ -100,11 +100,7 @@ class DirectSuperior extends Component {
         
               
             </tbody>  
-          {/* <tbody>
-          {directSubs.directSubs.map(sub => {
-            return <Soldier key={sub._id} soldier={sub}/> // delete 还没加
-          })}
-          </tbody> */}
+         
         </table>
         </div>
   

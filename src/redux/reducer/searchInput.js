@@ -1,18 +1,19 @@
 const initState = {
-  searchInput: "",
-  isSearching: false,
+  input: ''
 }
-const searchInput = (state=initState, action) => {
+const searchInput = (state = initState, action) => {
   switch(action.type) {
-    case 'CHANGE_SEARCH_INPUT':
-      let isSearching = action.input.length === 0 ? false : true;
+    case 'CHANGE_INPUT':
       return {
-        searchInput:action.input,
-        isSearching
-      }
+        input: action.input
+      };
+    case 'CLEAR_INPUT':
+      return {
+        input: ''
+      };
     default:
       return state;
   }
-};
+}
 
 export default searchInput;

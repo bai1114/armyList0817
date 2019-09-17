@@ -1,4 +1,19 @@
 import axios from 'axios';
+
+// Redirect
+export const redirect = () => {
+  return {
+    type: 'REDIRECT'
+  };
+};
+
+export const resetRedirect = () => {
+  return {
+    type: 'RESET_REDIRECT'
+  };
+};
+
+
 // Fetch Page
 const fetchSoldiersStart = () => {
   return {
@@ -26,7 +41,6 @@ export const fetchSoldiers = () => {
     axios
       .get('http://localhost:5000/api/range/0/10')
       .then(response => {
-        // console.log('!!!soldiers',response.data.soldiers);
         dispatch(fetchSoldiersSuccess(response.data.soldiers));
       })
       .catch(err => {
@@ -67,8 +81,6 @@ export const addRangeSoldiers = (offset, limit) => {
       .then(response => {
         const soldiers = response.data.soldiers;
         const hasMore = soldiers.length >= limit;
-        // console.log('add range soldiers', soldiers);
-        // console.log('add range hasmore', hasMore);
         dispatch(addRangeSoldiersSuccess(soldiers, hasMore));
       })
       .catch(err => {
@@ -89,7 +101,7 @@ export const reload = () => {
         dispatch(fetchSoldiersSuccess(response.data.soldiers));
       })
       // .then(res => {
-      //   dispatch(sortEmployees("", true));
+      //   dispatch(sortSoldiers("", true));
       // })
       .catch(err => {
         dispatch(fetchSoldiersFail(err));
@@ -167,7 +179,6 @@ export const fetchSup = _id => {
     })
       .then(response => {
         dispatch(fetchSupSuccess(response.data.soldier));
-        // console.log('fetch soldier response.data', response.data.soldier);
       })
       .catch(err => {
         dispatch(fetchSupFail(err));
@@ -208,9 +219,7 @@ export const createSoldier = (soldier) => {
       .then(response => {
         // console.log('response.data.soldier', response.data.soldier);
         dispatch(createSoldierSuccess(response.data.soldier));
-      })
-      .then(response => {
-        dispatch(reload());  
+        dispatch(redirect());  
       })
       .catch(error => {
         dispatch(createSoldierFail(error));
@@ -251,11 +260,11 @@ export const editSoldier = (id, soldier) => {
     })
       .then(response => {
         dispatch(editSoldierSuccess(id, response.data.soldier));
-        dispatch(fetchSoldiers());
+        dispatch(redirect());  
       })
-      // .then(response => {
-      //   dispatch(reload());  
-      // })
+      .then(response => {
+        dispatch(reload());  
+      })
       .catch(error => {
         dispatch(editSoldierFail(error));
       });
@@ -291,11 +300,8 @@ export const deleteSoldier = (id) => {
       .delete(`http://localhost:5000/api/delete/${id}`)
       .then(response => {
         dispatch(deleteSoldierSuccess(id));
-        // console.log('delete soldier success');
-      })
-      .then(response => {
-        dispatch(reload());  
-      })
+        dispatch(redirect());  
+      }) 
       .catch(error => {
         dispatch(deleteSoldierFail(error));
       });
@@ -331,9 +337,6 @@ export const uploadImage = (image, filename) => {
   data.append('image', image);
   data.append('filename', filename);
 
-  console.log('data image', data.get('image'));
-  console.log('data filename', data.get('filename'));
-
   return (dispatch) => {
     dispatch(uploadImageStart());
     axios({
@@ -343,13 +346,16 @@ export const uploadImage = (image, filename) => {
     })
       .then(response => {
         dispatch(uploadImageSuccess(image, filename, response.data.imgUrl));
-        console.log('response:', response.data);
       })
       .catch(err => {
         dispatch(uploadImageFail(err));
       });
   }
 };
+
+
+
+
 export const sortSoldiers = (key,keep) => {
   return {
     type: 'SORT_SOLDIERS',
@@ -358,57 +364,25 @@ export const sortSoldiers = (key,keep) => {
   };
 };
 
-// Sort
-// export const sortUsers = key => {
-//   return {
-//     type: 'SORT_USERS',
-//     key
-//   };
-// };
+export const changeInput = input => {
+  return {
+    type: 'CHANGE_INPUT',
+    input
+  };
+};
+
+export const clearInput = () => {
+  return {
+    type: 'CLEAR_INPUT',
+  };
+};
 
 
-// Search
-// const searchStart = () => {
-//   return {
-//     type: 'SEARCH_START'
-//   };
-// };
+      // .then(response => {
+      //   dispatch(reload());  
+      // })
 
-// const searchSuccess = (users) => {
-//   return {
-//     type: 'SEARCH_SUCCESS',
-//     users,
-//   };
-// };
 
-// const searchFail = error => {
-//   return {
-//     type: 'SEARCH_FAIL',
-//     error
-//   };
-// };
-
-// export const search = (keyword) => {
-//   return (dispatch) => {
-//     dispatch(searchStart());
-//     axios
-//       .get(`http://localhost:8080/api/search/${keyword}`)
-//       .then(response => {
-//         console.log(`keyword is ${keyword}`);
-//         dispatch(searchSuccess(response.data));
-//       })
-//       .catch(error => {
-//         dispatch(searchFail(error));
-//       });
-//   }
-// }
-
-// export const changeSearchInput = (input) => {
-//   return {
-//     type: 'CHANGE_SEARCH_INPUT',
-//     input
-//   };
-// };
 
 
 

@@ -159,7 +159,8 @@ const soldiers = (state = initState, action) => {
         isLoading: false,
         isFetching: false,
         err: null,
-        sorted: true
+        sorted: true,
+        // searchInput: ''
       };
     }
     case 'FETCH_SOLDIERS_FAIL':
@@ -192,7 +193,18 @@ const soldiers = (state = initState, action) => {
         isLoadng: false,
         err: action.err,
       }
-
+      // const searchInput = (state = '', action) => {
+      //   switch(action.type) {
+    // case 'CHANGE_INPUT':
+    //   return {
+    //     searchInput: action.input
+    //   }
+        //   default:
+        //     return state;
+        // }
+      // }
+      
+      // export default searchInput;
 
     default:
       return state;

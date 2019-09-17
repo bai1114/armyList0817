@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { Redirect } from 'react-router-dom';
+import moment from 'moment';
 
 class EditSoldier extends Component {
   constructor(props) {
@@ -19,7 +20,6 @@ class EditSoldier extends Component {
         imgUrl: '',
       },
       changedInfo: {},
-      redirect: false,
       filteredSuperiors: []
     };
   }
@@ -28,7 +28,6 @@ class EditSoldier extends Component {
     for (let i = 0; i < this.props.soldiers.length; i++){
       if (this.props.soldiers[i]._id === this.props.id) {
         this.setState({info : this.props.soldiers[i]});
-        console.log('startDate', this.props.soldiers[i].startDate);
       }
     }
     this.filterSuperior();
@@ -91,6 +90,25 @@ class EditSoldier extends Component {
     this.setState({ info, changedInfo: changed });
   };
 
+  handleFile = () => {
+    const file = this.fileInput.files[0];
+    const filename = file.name;
+    const url = this.getObjectURL(file);
+    this.setState({info : {...this.state.info, imgUrl : url}});
+    this.props.uploadImage(file, filename);
+  };
+  getObjectURL(file) {
+    var url = null ;
+    if (window.createObjectURL!==undefined) { // basic
+        url = window.createObjectURL(file) ;
+    } else if (window.URL!==undefined) { // mozilla(firefox)
+        url = window.URL.createObjectURL(file) ;
+    } else if (window.webkitURL!==undefined) { // webkit or chrome
+        url = window.webkitURL.createObjectURL(file) ;
+    }
+    return url ;
+  }
+
   handleSubmit = e => {
     e.preventDefault();
     let changedInfo;
@@ -100,18 +118,15 @@ class EditSoldier extends Component {
       changedInfo = {...this.state.changedInfo};
     }
     this.props.editSoldier(this.props.id, changedInfo);
-    this.setState({ redirect: true });
   };
 
   render() {
-    console.log('id', this.props.id);
+    const imgStyle  = {width : "200px", height : "200px"}
     const candidateSuperiors = this.props.soldiers.filter(superior => {
       return !this.state.filteredSuperiors.includes(superior._id);
     });
-    const { info, redirect } = this.state;
-    console.log('redirect', redirect);
-    console.log('isloading', this.props.isLoading);
-    if (redirect && !this.props.isLoading) {
+    const { info } = this.state;
+    if (this.props.redirect && !this.props.isLoading) {
       return <Redirect to = {{ pathname: '/' }}/>
     } else {
       return (
@@ -119,6 +134,26 @@ class EditSoldier extends Component {
           <h2>Edit Soldier</h2>
           <br></br>
           <form onSubmit = {this.handleSubmit}>
+
+            <div className="image">
+            <img src={info.imgUrl} alt="" style={imgStyle}></img>
+              <label className="col col-sm-2 col-lg-2 col-form-label" htmlFor="picture"> </label>
+              <div className="col col-sm-10 col-lg-4">
+              Upload Picture:
+                <input
+                  id="picture"
+                  type="file"
+                  ref={input => {
+                    this.fileInput = input
+                  }}
+                  className="form-control"
+                  accept=".jpg, .jpeg, .png"
+                  onChange={this.handleFile}
+                />
+              </div>
+            </div>
+
+
             <div className="form-group col-md-50" >
               <label for = 'name'>
                 Name:
@@ -144,7 +179,7 @@ class EditSoldier extends Component {
               <label htmlFor="startDate">
                 Start Date:
               </label>
-              <input type = 'date' class = 'form-control' id = 'startDate' value = {info.startDate} onChange = {e => this.handleChange(e, 'startDate')} required = {true}/>
+              <input type = 'date' class = 'form-control' id = 'startDate' value = {moment.parseZone(info.startDate).format('YYYY-MM-DD')} onChange = {e => this.handleChange(e, 'startDate')} required = {true}/>
             </div>
 
             <div className="form-group col-md-50" >

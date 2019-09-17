@@ -3,7 +3,8 @@ import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import face from '../../image/default.png';
 import InfiniteScroll from "react-infinite-scroll-component";
-import moment from 'moment';
+
+import moment from 'react-moment';
 
 class HomePage extends Component {
   componentDidMount() {
@@ -14,9 +15,6 @@ class HomePage extends Component {
 
   onDelete = (_id) => {
     this.props.deleteSoldier(_id);
-    if (this.props.deleteErr) {
-      this.setState({redirect: true});
-    }
   };
   
   handleSort = (e, key) => {
@@ -24,9 +22,28 @@ class HomePage extends Component {
     this.props.sortSoldiers(key, false);
   }
 
+  handleReset = () => {
+    this.props.clearInput();
+    this.props.fetchSoldiers();
+  }
 
-  
   render() {
+    let filteredList = this.props.soldiers;
+    if (this.props.searchInput !== '') {
+      filteredList = this.props.soldiers.filter(soldier => {
+        for (let key in soldier) {
+          if (typeof soldier[key] === 'string') {
+            const input = this.props.searchInput.toLowerCase();
+            const value = soldier[key].toLowerCase();
+            if (value.indexOf(input) === 0) {
+              return true;
+            }
+          }
+        }
+        return false;
+      });
+    }
+    
     const style = { maxHeight: '50px', maxWidth: '50px' };
     if (this.props.err !== null) {
       return <p>There is an error in getting soldiers.</p>
@@ -39,18 +56,28 @@ class HomePage extends Component {
             <div>
               <h2>US Army Personnel Registry</h2>
             </div>
-            {/* <div>
-              <Search/>
-            </div> */}
+            <div>
+              <form className="form-inline">
+                <input 
+                  type="text" 
+                  className="form-control"
+                  placeholder="Search"
+                  onChange={e => this.props.changeInput(e.target.value)} 
+                  value={this.props.searchInput} 
+                />
+              </form>
+            </div>
+            <div>
+              <button type = 'button' className="btn btn-danger" 
+                      onClick={() => this.handleReset()}>Reset</button>
+            </div>
             <div>
               <div id="scrollable" className="scroll">
                 <InfiniteScroll
                   className="scroll"
-                  dataLength={this.props.soldiers.length}
-                  next={() =>this.props.loadSoldiers(this.props.soldiers.length, 5)}
+                  dataLength={filteredList.length}
+                  next={() =>this.props.loadSoldiers(filteredList.length, 5)}
                   hasMore={this.props.hasMore}
-                  // loader={<h6>Loading..</h6>}
-                  endMessage={<h3>End</h3>}
                 >
               <table className="table table-bordered">
                 <thead className ="thead-dark"> 
@@ -86,11 +113,7 @@ class HomePage extends Component {
                 </thead>
               
                 <tbody>
-                  {this.props.soldiers.map(soldier => {
-                    // console.log('date', moment(parseInt(soldier.startDate).format("YYYY-MM-DD")));
-                    // var unixTimestamp = new Date( soldier.startDate ) ;
-                    // let commonTime = unixTimestamp.toLocaleString();
-                    console.log('11111111', soldier.imgUrl);
+                  {filteredList.map(soldier => {
                     return (
                       <tr key = {soldier._id}>
                         <td>
@@ -101,7 +124,7 @@ class HomePage extends Component {
                         <td class='text-center'>{soldier.name}</td>
                         <td class='text-center'>{soldier.sex}</td>
                         <td class='text-center'>{soldier.rank}</td>
-                        <td class='text-center'>{soldier.startDate}</td>
+                        <td class='text-center'>{soldier.startDate.slice(0,4)}-{soldier.startDate.slice(5,7)}-{soldier.startDate.slice(8,10)}</td>
                         <td class='text-center'><a href ={`tel:soldier.phone`}>{soldier.phone}</a></td>
                         <td class='text-center'><a href ={`mailto:soldier.email`}>{soldier.email}</a></td>
                         <td class='text-center'><Link to ={`/${soldier.superiorId}`}>{soldier.superiorName}</Link></td>
@@ -130,3 +153,7 @@ class HomePage extends Component {
 }
 
 export default HomePage;
+
+// if (this.props.deleteErr) {
+//   this.props.redirectToHome();
+// }

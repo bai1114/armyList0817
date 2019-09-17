@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Redirect } from 'react-router-dom';
-// import './createUser.css';
+// import './index.css';
 import face from '../../image/default.png';
 
 class CreateSoldier extends Component {
@@ -15,7 +15,6 @@ class CreateSoldier extends Component {
       phone: '',
       email: '',
       superiorId: null,
-      redirect: false,
       imgUrl: face,
     };
   }
@@ -24,28 +23,18 @@ class CreateSoldier extends Component {
   handleSubmit = e => {
     e.preventDefault();
     let imgUrl = '';
-    console.log('uploadsuccess',this.props.image.uploadSuccess);
-    console.log('upload image url:', this.props.image.imgUrl);
     if (this.props.image.uploadSuccess) {
       imgUrl = this.props.image.imgUrl;
-      console.log('Testing imgUrl', imgUrl);
       this.setState({ imgUrl: this.props.image.imgUrl });
       const soldier = {...this.state, imgUrl };
       delete soldier.startDateStr;
       this.props.createSoldier(soldier);
-      if (this.props.err === null) {
-        this.setState({ redirect: true, imgUrl: this.props.image.imgUrl });
-      }
-      
-    } else {
+    }
+    else {
       const soldier = {...this.state, imgUrl };
       delete soldier.startDateStr;
       this.props.createSoldier(soldier);
-      if (this.props.isLoading === false && this.props.err === null ) {
-        this.setState({ redirect: true });
-      }
     }
-    console.log('after submit imgurl', imgUrl);
   }
   
   handleChange = (e, key) => {
@@ -58,15 +47,13 @@ class CreateSoldier extends Component {
     const dateStr = e.target.value;
     let date = e.target.value;
     this.setState({ startDateStr: dateStr, startDate: date });
+    this.setState({ startDate: date });
   }
 
   handleFile = () => {
     const file = this.fileInput.files[0];
     const filename = file.name;
     const url = this.getObjectURL(file);
-    console.log('file', file);
-    console.log('filename', filename);
-    console.log('url', url);
     this.setState({imgUrl : url});
     this.props.uploadImage(file, filename);
   };
@@ -87,7 +74,7 @@ class CreateSoldier extends Component {
     const redirect = this.state.redirect;
     const imgStyle  = {width : "200px", height : "200px"}
     console.log("redirect", redirect);
-    if (redirect && !this.props.isLoading) {
+    if (this.props.redirect && !this.props.isLoading) {
       return <Redirect to = {{ pathname: '/' }}/>
     } else {
       return (
@@ -97,9 +84,9 @@ class CreateSoldier extends Component {
           <form onSubmit = {this.handleSubmit}>
             <div className="image">
             <img src={this.state.imgUrl} alt="" style={imgStyle}></img>
-              <label className="col col-sm-2 col-lg-2 col-form-label" htmlFor="picture"> 
+              <label htmlFor="picture"> 
               </label>
-              <div className="col col-sm-10 col-lg-4">
+              <div className="form-group col-md-50">
               Upload Picture:
                 <input id="picture" type="file" 
                        ref = {input => {this.fileInput = input}}
@@ -153,7 +140,7 @@ class CreateSoldier extends Component {
             </div> 
 
             <div class="form-group col-md-50"> 
-              <label htmlFor='superior'>
+              <label className="col col-sm-2 col-lg-2 col-form-label" htmlFor='superior'>
                 Superior: 
               </label> 
               <div className="col col-sm-10 col-lg-4">
@@ -175,3 +162,18 @@ class CreateSoldier extends Component {
 }
 
 export default CreateSoldier;
+
+// if (this.props.err === null) {
+//   this.setState({ imgUrl: this.props.image.imgUrl });
+// }
+// } else {
+// const soldier = {...this.state, imgUrl };
+// delete soldier.startDateStr;
+// this.props.createSoldier(soldier);
+// if (this.props.isLoading === false && this.props.err === null ) {
+//   this.setState({ redirect: true });
+// }
+
+   // if (this.props.err === null) {
+      // this.setState({ imgUrl: this.props.image.imgUrl });
+      // }
